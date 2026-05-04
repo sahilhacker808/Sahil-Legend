@@ -85,7 +85,20 @@ app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false,
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ─── NO static file serving — frontend is separate ────────
+// ─── Static Files — Serve web/public folder (same-origin, no CORS needed) ─
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1h',
+  etag: true,
+}));
+// Fallback: serve index.html for any non-API route (SPA support)
+app.get(/^(?!\/api).*$/, (req, res, next) => {
+  const indexFile = path.join(__dirname, 'public', 'index.html');
+  require('fs').access(indexFile, require('fs').constants.F_OK, (err) => {
+    if (!err) res.sendFile(indexFile);
+    else next();
+  });
+});
 
 // ─── Sessions ─────────────────────────────────────────────
 app.use(session({
@@ -492,10 +505,10 @@ app.use((err, req, res, next) => {
 const PORT = config.port || 3000;
 server.listen(PORT, () => {
   logger.success('╔══════════════════════════════════════════╗');
-  logger.success('║   🤖  SAHIL 804 BOT  — API ONLY MODE     ║');
+  logger.success('║   🤖  SAHIL 804 BOT  — FULL MODE         ║');
   logger.success(`║   🌐  Port     : ${PORT}                    ║`);
   logger.success('║   💾  Storage  : Local JSON Files         ║');
-  logger.success('║   🚫  No HTML  : Frontend hosted separate ║');
+  logger.success('║   ✅  Panel    : /public/index.html       ║');
   logger.success('║   ✅  CORS     : Enabled for frontend     ║');
   logger.success('║   👑  Sahil Hacker 804                    ║');
   logger.success('╚══════════════════════════════════════════╝');
