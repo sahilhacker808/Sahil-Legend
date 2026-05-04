@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SAHIL 804 BOT — Panel</title>
+<style>
+  :root{
+    --bg:#0d1117;--card:#161b22;--card2:#1c2330;
+    --accent:#f0a500;--accent2:#e8912c;
+    --blue:#4fa3e8;--green:#3fcf6e;--red:#e85555;
+    --text:#e6edf3;--muted:#8b949e;
+    --border:#30363d;--shadow:0 8px 32px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+
+  /* ── Animated Background ── */
+  body::before{content:'';position:fixed;inset:0;background:
+    radial-gradient(ellipse 80% 50% at 20% 20%,rgba(240,165,0,.06) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(79,163,232,.06) 0%,transparent 60%);
+    pointer-events:none;z-index:0}
+
+  /* ── Stars ── */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite alternate}
+  @keyframes twinkle{0%{opacity:.1;transform:scale(.8)}100%{opacity:.7;transform:scale(1.2)}}
+
+  /* ── Layout ── */
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 16px}
+
+  /* ── Header ── */
+  .header{text-align:center;margin-bottom:32px;animation:fadeDown .7s ease}
+  .avatar{width:88px;height:88px;border-radius:50%;border:3px solid var(--accent);object-fit:cover;
+    box-shadow:0 0 24px rgba(240,165,0,.4);animation:glow 2.5s ease-in-out infinite alternate}
+  @keyframes glow{0%{box-shadow:0 0 16px rgba(240,165,0,.3)}100%{box-shadow:0 0 36px rgba(240,165,0,.7)}}
+  .title{font-size:2rem;font-weight:800;margin-top:12px;
+    background:linear-gradient(135deg,var(--accent),var(--blue),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    letter-spacing:2px}
+  .subtitle{color:var(--muted);margin-top:4px;font-size:.95rem}
+
+  /* ── Card ── */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;
+    padding:28px 28px;width:100%;max-width:440px;box-shadow:var(--shadow);animation:fadeUp .6s ease}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+
+  /* ── Tabs ── */
+  .tabs{display:flex;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px}
+  .tab{flex:1;padding:10px;text-align:center;border-radius:9px;cursor:pointer;font-weight:600;
+    font-size:.88rem;color:var(--muted);transition:all .25s;user-select:none;border:none;background:none}
+  .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111;box-shadow:0 4px 12px rgba(240,165,0,.3)}
+  .tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.05)}
+
+  /* ── Forms ── */
+  .panel{display:none;animation:fadeUp .35s ease}
+  .panel.show{display:block}
+  label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:6px;margin-top:16px;text-transform:uppercase;letter-spacing:.5px}
+  label:first-child{margin-top:0}
+  .inp{width:100%;padding:13px 16px;background:var(--card2);border:1.5px solid var(--border);
+    border-radius:10px;color:var(--text);font-size:.95rem;outline:none;transition:border .2s,box-shadow .2s}
+  .inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,165,0,.15)}
+  .inp::placeholder{color:var(--muted)}
+  .inp-wrap{position:relative}
+  .eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:1.1rem;user-select:none;transition:color .2s}
+  .eye:hover{color:var(--accent)}
+
+  /* ── Buttons ── */
+  .btn{width:100%;padding:14px;border:none;border-radius:11px;font-size:1rem;font-weight:700;
+    cursor:pointer;margin-top:20px;transition:all .25s;position:relative;overflow:hidden}
+  .btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.08);opacity:0;transition:opacity .2s}
+  .btn:hover::after{opacity:1}
+  .btn:active{transform:scale(.98)}
+  .btn-gold{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111}
+  .btn-blue{background:linear-gradient(135deg,#4fa3e8,#3b82f6);color:#fff}
+  .btn-green{background:linear-gradient(135deg,var(--green),#27a85f);color:#fff}
+  .btn-red{background:linear-gradient(135deg,var(--red),#c0392b);color:#fff}
+  .btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1.5px solid var(--border)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-sm{width:auto;padding:8px 20px;font-size:.85rem;margin-top:0}
+
+  /* ── Alert ── */
+  .alert{padding:12px 16px;border-radius:10px;margin-top:16px;font-size:.9rem;font-weight:500;
+    display:none;animation:fadeUp .3s ease;line-height:1.5}
+  .alert.show{display:block}
+  .alert-err{background:rgba(232,85,85,.15);border:1px solid rgba(232,85,85,.4);color:#ff8080}
+  .alert-ok{background:rgba(63,207,110,.12);border:1px solid rgba(63,207,110,.35);color:#5cdb8a}
+  .alert-info{background:rgba(79,163,232,.12);border:1px solid rgba(79,163,232,.35);color:#7ec8f5}
+
+  /* ── Dashboard ── */
+  #dashboard{width:100%;max-width:660px;animation:fadeUp .5s ease}
+  .dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+  .dash-title{font-size:1.4rem;font-weight:800}
+  .badge{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:700}
+  .badge-gold{background:rgba(240,165,0,.2);color:var(--accent);border:1px solid rgba(240,165,0,.3)}
+  .badge-blue{background:rgba(79,163,232,.2);color:var(--blue);border:1px solid rgba(79,163,232,.3)}
+
+  /* Bot Card */
+  .bots-grid{display:grid;gap:14px;margin-top:16px}
+  .bot-card{background:var(--card2);border:1.5px solid var(--border);border-radius:14px;padding:18px;position:relative;transition:border .2s}
+  .bot-card:hover{border-color:var(--accent)}
+  .bot-top{display:flex;justify-content:space-between;align-items:center}
+  .bot-num{font-weight:700;font-size:1.05rem}
+  .bot-status{padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700}
+  .bot-status.on{background:rgba(63,207,110,.15);color:var(--green);border:1px solid rgba(63,207,110,.3)}
+  .bot-status.off{background:rgba(232,85,85,.1);color:var(--red);border:1px solid rgba(232,85,85,.25)}
+  .bot-id{font-size:.75rem;color:var(--muted);margin-top:4px;font-family:monospace}
+  .bot-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+  /* Pairing Box */
+  .pair-box{background:var(--card2);border:1.5px solid var(--border);border-radius:14px;padding:22px;margin-top:16px}
+  .pair-tabs{display:flex;gap:8px;margin-bottom:18px}
+  .pair-tab{flex:1;padding:10px;border-radius:9px;text-align:center;cursor:pointer;font-weight:700;
+    font-size:.88rem;border:1.5px solid var(--border);background:none;color:var(--muted);transition:all .25s}
+  .pair-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(240,165,0,.08)}
+
+  .pair-code-display{text-align:center;padding:28px;background:rgba(0,0,0,.3);border-radius:12px;margin-top:14px}
+  .pair-code{font-size:2.4rem;font-weight:900;letter-spacing:6px;font-family:monospace;
+    background:linear-gradient(135deg,var(--accent),var(--blue));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    animation:pulse 1.5s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  .pair-hint{color:var(--muted);font-size:.82rem;margin-top:8px}
+
+  .qr-wrap{text-align:center;padding:16px}
+  .qr-wrap img{width:200px;height:200px;border-radius:12px;border:3px solid var(--accent)}
+
+  /* Spinner */
+  .spin{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,.2);
+    border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Divider */
+  .divider{text-align:center;color:var(--muted);font-size:.8rem;margin:18px 0;position:relative}
+  .divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+  .divider::before{left:0}.divider::after{right:0}
+
+  /* Section Title */
+  .sec-title{font-size:1.05rem;font-weight:700;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+  /* Toast */
+  #toast{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+  .toast-item{padding:12px 20px;border-radius:10px;font-size:.9rem;font-weight:600;
+    animation:toastIn .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.4);max-width:300px}
+  @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+  .toast-ok{background:#1a3a28;border:1px solid var(--green);color:var(--green)}
+  .toast-err{background:#3a1a1a;border:1px solid var(--red);color:#ff8080}
+  .toast-info{background:#1a2a3a;border:1px solid var(--blue);color:var(--blue)}
+
+  /* Responsive */
+  @media(max-width:480px){.card{padding:20px 16px}.title{font-size:1.5rem}.pair-code{font-size:1.8rem;letter-spacing:3px}}
+
+  /* Empty state */
+  .empty{text-align:center;padding:40px 20px;color:var(--muted)}
+  .empty-icon{font-size:3rem;margin-bottom:12px}
+
+  /* Copy btn */
+  .copy-btn{cursor:pointer;padding:4px 10px;border-radius:6px;font-size:.75rem;border:1px solid var(--border);
+    background:rgba(255,255,255,.05);color:var(--muted);transition:all .2s;margin-left:8px}
+  .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* Logout */
+  .logout-btn{padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:none;
+    color:var(--muted);cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
+  .logout-btn:hover{border-color:var(--red);color:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Main Wrapper -->
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <img class="avatar" src="https://i.ibb.co/Vc2LHyqv/IMG-20260408-WA0014.jpg"
+         onerror="this.src='https://ui-avatars.com/api/?name=S804&background=f0a500&color=111&size=88'" alt="Bot"/>
+    <div class="title">SAHIL 804 BOT</div>
+    <div class="subtitle">WhatsApp Bot Platform — Control Panel</div>
+  </div>
+
+  <!-- ══ LOGIN CARD ══ -->
+  <div class="card" id="loginCard">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('user')" id="tabUser">👤 User</button>
+      <button class="tab" onclick="switchTab('admin')" id="tabAdmin">👑 Admin</button>
+      <button class="tab" onclick="switchTab('register')" id="tabReg">📝 Register</button>
+    </div>
+
+    <!-- User Login -->
+    <div class="panel show" id="panelUser">
+      <label>📧 Email</label>
+      <input class="inp" id="uEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+      <label>🔒 Password</label>
+      <div class="inp-wrap">
+        <input class="inp" id="uPwd" type="password" placeholder="Password" autocomplete="current-password"/>
+        <span class="eye" onclick="togglePwd('uPwd',this)">👁</span>
+      </div>
+      <div class="alert alert-err" id="uAlert"></div>
+      <button class="btn btn-blue" id="uBtn" onclick="doUserLogin()">🔐 Sign In</button>
+    </div>
+
+    <!-- Admin Login -->
+    <div class="panel" id="panelAdmin">
+      <label>📧 Admin Email</label>
+      <input class="inp" id="aEmail" type="email" placeholder="admin@email.com" autocomplete="email"/>
+      <label>🔒 Admin Password</label>
+      <div class="inp-wrap">
+        <input class="inp" id="aPwd" type="password" placeholder="Admin Password" autocomplete="current-password"/>
+        <span class="eye" onclick="togglePwd('aPwd',this)">👁</span>
+      </div>
+      <div class="alert alert-err" id="aAlert"></div>
+      <button class="btn btn-gold" id="aBtn" onclick="doAdminLogin()">👑 Admin Sign In</button>
+    </div>
+
+    <!-- Register -->
+    <div class="panel" id="panelReg">
+      <label>👤 Full Name</label>
+      <input class="inp" id="rName" type="text" placeholder="Your Name" autocomplete="name"/>
+      <label>📧 Email</label>
+      <input class="inp" id="rEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+      <label>📱 WhatsApp Number</label>
+      <input class="inp" id="rWa" type="tel" placeholder="923001234567 (with country code)"/>
+      <label>🔒 Password</label>
+      <div class="inp-wrap">
+        <input class="inp" id="rPwd" type="password" placeholder="Min 8 chars + Uppercase + Special"/>
+        <span class="eye" onclick="togglePwd('rPwd',this)">👁</span>
+      </div>
+      <div class="alert" id="rAlert"></div>
+      <button class="btn btn-green" id="rBtn" onclick="doRegister()">📝 Create Account</button>
+      <div style="color:var(--muted);font-size:.78rem;margin-top:12px;text-align:center">
+        After registration, wait for Admin approval before login.
+      </div>
+    </div>
+  </div>
+  <!-- ══ END LOGIN CARD ══ -->
+
+  <!-- ══ DASHBOARD ══ -->
+  <div id="dashboard" style="display:none">
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">🤖 Bot Dashboard</div>
+        <div style="color:var(--muted);font-size:.85rem;margin-top:4px" id="dashUser"></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="badge badge-gold" id="dashBadge">User</span>
+        <button class="logout-btn" onclick="doLogout()">🚪 Logout</button>
+      </div>
+    </div>
+
+    <!-- Announcement -->
+    <div class="alert alert-info" id="announcement" style="display:none;margin-bottom:16px"></div>
+
+    <!-- Pairing Section -->
+    <div class="card" style="max-width:660px">
+      <div class="sec-title">⚡ Connect Your WhatsApp Bot</div>
+      <div class="pair-tabs">
+        <button class="pair-tab active" onclick="setPairMode('code')" id="ptCode">📱 Pair Code</button>
+        <button class="pair-tab" onclick="setPairMode('qr')" id="ptQR">📷 QR Code</button>
+      </div>
+
+      <!-- Pair Code Mode -->
+      <div id="modeCode">
+        <label>📞 Your WhatsApp Number</label>
+        <div style="display:flex;gap:10px">
+          <input class="inp" id="pairNum" type="tel" placeholder="923001234567 (with country code)" style="flex:1"/>
+          <button class="btn btn-gold btn-sm" onclick="startPair()" id="pairBtn">Get Code</button>
+        </div>
+        <div style="color:var(--muted);font-size:.8rem;margin-top:8px">
+          ⚠️ Enter number with country code. Example: 923001234567
+        </div>
+        <div id="pairWait" style="display:none;margin-top:16px">
+          <div style="text-align:center;color:var(--muted);margin-bottom:10px">
+            <span class="spin"></span>Waiting for pair code...
+          </div>
+        </div>
+        <div id="pairResult" style="display:none">
+          <div class="pair-code-display">
+            <div class="pair-code" id="pairCodeText"></div>
+            <div class="pair-hint">Open WhatsApp → Linked Devices → Link with phone number<br/>Enter this code</div>
+            <button class="copy-btn" onclick="copyCode()" style="margin-top:10px;display:inline-block;padding:8px 16px;font-size:.85rem">📋 Copy Code</button>
+          </div>
+        </div>
+        <div class="alert alert-err" id="pairErr" style="display:none"></div>
+      </div>
+
+      <!-- QR Mode -->
+      <div id="modeQR" style="display:none">
+        <div style="color:var(--muted);font-size:.88rem;margin-bottom:14px">
+          Scan QR code with WhatsApp → Linked Devices → Link a Device
+        </div>
+        <button class="btn btn-blue" onclick="startQR()" id="qrBtn">📷 Generate QR Code</button>
+        <div id="qrWait" style="display:none;margin-top:16px;text-align:center;color:var(--muted)">
+          <span class="spin"></span>Generating QR code...
+        </div>
+        <div class="qr-wrap" id="qrDisplay" style="display:none">
+          <img id="qrImg" src="" alt="QR Code"/>
+          <div class="pair-hint" style="margin-top:10px">Scan with WhatsApp to connect</div>
+        </div>
+        <div class="alert alert-err" id="qrErr" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- My Bots -->
+    <div class="card" style="max-width:660px;margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="sec-title" style="margin-bottom:0">🤖 My Bots</div>
+        <button class="btn btn-ghost btn-sm" onclick="loadBots()">🔄 Refresh</button>
+      </div>
+      <div class="bots-grid" id="botsGrid">
+        <div class="empty"><div class="empty-icon">🤖</div>No bots connected yet</div>
+      </div>
+    </div>
+
+    <!-- Admin Panel (shown only for admin) -->
+    <div id="adminSection" style="display:none">
+      <div class="card" style="max-width:660px;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="sec-title" style="margin-bottom:0">👑 Admin — Users</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadAdminUsers()">🔄 Refresh</button>
+        </div>
+        <div id="adminUsers"><div class="empty"><span class="spin"></span> Loading...</div></div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ══ END DASHBOARD ══ -->
+
+</div><!-- .wrap -->
+
+<script>
+// ══════════════════════════════════════════
+//  SAHIL 804 BOT — Control Panel JS
+//  Same-origin: no CORS issues!
+// ══════════════════════════════════════════
+
+// Stars
+(function(){
+  const c = document.getElementById('stars');
+  for(let i=0;i<70;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*2.5+.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${Math.random()*4+2}s;animation-delay:${Math.random()*5}s`;
+    c.appendChild(s);
+  }
+})();
+
+// ── API (same-origin, no CORS!) ───────────────
+async function api(path, opts={}) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 20000);
+  try {
+    const r = await fetch(path, {
+      credentials: 'same-origin',
+      headers: { 'Content-Type':'application/json', ...(opts.headers||{}) },
+      signal: ctrl.signal,
+      ...opts
+    });
+    clearTimeout(t);
+    return r;
+  } catch(e) {
+    clearTimeout(t);
+    if(e.name==='AbortError') throw new Error('⏳ Request timeout — server busy, retry.');
+    throw new Error('❌ Network error: ' + e.message);
+  }
+}
+
+// ── Toast ────────────────────────────────────
+function toast(msg, type='ok') {
+  const box = document.getElementById('toast');
+  const el = document.createElement('div');
+  el.className = `toast-item toast-${type}`;
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity .4s'; setTimeout(()=>el.remove(),400); }, 3000);
+}
+
+// ── Alert helper ─────────────────────────────
+function showAlert(id, msg, type='err') {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.className = `alert alert-${type} show`;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideAlert(id) {
+  const el = document.getElementById(id);
+  if(el) { el.style.display='none'; el.classList.remove('show'); }
+}
+
+// ── Password toggle ───────────────────────────
+function togglePwd(id, eye) {
+  const inp = document.getElementById(id);
+  if(inp.type==='password') { inp.type='text'; eye.textContent='🙈'; }
+  else { inp.type='password'; eye.textContent='👁'; }
+}
+
+// ── Tab switching ────────────────────────────
+function switchTab(t) {
+  ['user','admin','register'].forEach(x => {
+    document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1).replace('ister','Reg').replace('ster','Reg'))?.classList.remove('active');
+    document.getElementById('panel'+x.charAt(0).toUpperCase()+x.slice(1).replace('ister','Reg').replace('ster','Reg'))?.classList.remove('show');
+  });
+  // manual
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
+  const map = {user:'User',admin:'Admin',register:'Reg'};
+  document.getElementById('tab'+map[t])?.classList.add('active');
+  document.getElementById('panel'+map[t])?.classList.add('show');
+}
+
+// ── Enter key support ────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.key!=='Enter') return;
+  const focused = document.activeElement;
+  if(['uEmail','uPwd'].includes(focused?.id)) doUserLogin();
+  else if(['aEmail','aPwd'].includes(focused?.id)) doAdminLogin();
+  else if(['rName','rEmail','rWa','rPwd'].includes(focused?.id)) doRegister();
+  else if(focused?.id==='pairNum') startPair();
+});
+
+// ══ AUTH ════════════════════════════════════
+
+async function doUserLogin() {
+  const email = document.getElementById('uEmail').value.trim();
+  const pwd   = document.getElementById('uPwd').value;
+  if(!email||!pwd) return showAlert('uAlert','⚠️ Email aur password zaruri hain.');
+  hideAlert('uAlert');
+  const btn = document.getElementById('uBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>Signing in...';
+  try {
+    const r = await api('/api/auth/login', {method:'POST', body:JSON.stringify({email,password:pwd})});
+    const d = await r.json();
+    if(r.ok && d.success) {
+      toast('✅ Login successful!', 'ok');
+      await initDashboard();
+    } else {
+      showAlert('uAlert', '❌ ' + (d.error||'Login failed'));
+    }
+  } catch(e) { showAlert('uAlert', e.message); }
+  finally { btn.disabled=false; btn.innerHTML='🔐 Sign In'; }
+}
+
+async function doAdminLogin() {
+  const email = document.getElementById('aEmail').value.trim();
+  const pwd   = document.getElementById('aPwd').value;
+  if(!email||!pwd) return showAlert('aAlert','⚠️ Email aur password zaruri hain.');
+  hideAlert('aAlert');
+  const btn = document.getElementById('aBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>Signing in...';
+  try {
+    const r = await api('/api/auth/admin-login', {method:'POST', body:JSON.stringify({email,password:pwd})});
+    const d = await r.json();
+    if(r.ok && d.success) {
+      toast('👑 Admin login successful!', 'ok');
+      await initDashboard();
+    } else {
+      showAlert('aAlert', '❌ ' + (d.error||'Invalid credentials'));
+    }
+  } catch(e) { showAlert('aAlert', e.message); }
+  finally { btn.disabled=false; btn.innerHTML='👑 Admin Sign In'; }
+}
+
+async function doRegister() {
+  const name = document.getElementById('rName').value.trim();
+  const email= document.getElementById('rEmail').value.trim();
+  const wa   = document.getElementById('rWa').value.trim().replace(/[^0-9]/g,'');
+  const pwd  = document.getElementById('rPwd').value;
+  if(!name||!email||!wa||!pwd) return showAlert('rAlert','⚠️ Sab fields zaruri hain.','err');
+  hideAlert('rAlert');
+  const btn = document.getElementById('rBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>Creating account...';
+  try {
+    const r = await api('/api/auth/register', {method:'POST', body:JSON.stringify({name,email,whatsapp:wa,password:pwd})});
+    const d = await r.json();
+    if(r.ok && d.success) {
+      showAlert('rAlert', '✅ Account created! Admin approval ka wait karo.','ok');
+      toast('✅ Registered! Wait for approval.','ok');
+    } else {
+      showAlert('rAlert', '❌ ' + (d.error||'Registration failed'), 'err');
+    }
+  } catch(e) { showAlert('rAlert', e.message,'err'); }
+  finally { btn.disabled=false; btn.innerHTML='📝 Create Account'; }
+}
+
+async function doLogout() {
+  try { await api('/api/auth/logout',{method:'POST'}); } catch(_){}
+  closeWS();
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('loginCard').style.display='block';
+  toast('👋 Logged out', 'info');
+}
+
+// ══ DASHBOARD ═══════════════════════════════
+
+async function initDashboard() {
+  try {
+    const r = await api('/api/auth/me');
+    if(!r.ok) return;
+    const me = await r.json();
+    document.getElementById('loginCard').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    if(me.isAdmin) {
+      document.getElementById('dashUser').textContent = '👑 Admin: ' + me.email;
+      document.getElementById('dashBadge').textContent = '👑 Admin';
+      document.getElementById('dashBadge').className = 'badge badge-gold';
+      document.getElementById('adminSection').style.display='block';
+      loadAdminUsers();
+    } else {
+      document.getElementById('dashUser').textContent = '👤 ' + (me.name||me.email);
+      document.getElementById('dashBadge').textContent = me.plan||'Free';
+      document.getElementById('dashBadge').className = 'badge badge-blue';
+    }
+    loadAnnouncement();
+    loadBots();
+  } catch(e) { toast('Dashboard load error: '+e.message,'err'); }
+}
+
+async function loadAnnouncement() {
+  try {
+    const r = await api('/api/announcement');
+    if(!r.ok) return;
+    const d = await r.json();
+    if(d.announcement?.message) {
+      const el = document.getElementById('announcement');
+      el.textContent = '📢 ' + d.announcement.message;
+      el.style.display = 'block';
+    }
+  } catch(_){}
+}
+
+async function loadBots() {
+  const grid = document.getElementById('botsGrid');
+  grid.innerHTML = '<div class="empty"><span class="spin"></span> Loading bots...</div>';
+  try {
+    const r = await api('/api/user/bots');
+    if(!r.ok) { grid.innerHTML='<div class="empty">Failed to load bots</div>'; return; }
+    const d = await r.json();
+    const bots = d.bots||[];
+    if(!bots.length) { grid.innerHTML='<div class="empty"><div class="empty-icon">🤖</div>No bots connected yet.<br/>Use the pair section above!</div>'; return; }
+    grid.innerHTML = bots.map(b=>`
+      <div class="bot-card">
+        <div class="bot-top">
+          <div>
+            <div class="bot-num">📱 +${b.phoneNumber||b.number||'Unknown'}</div>
+            <div class="bot-id">${b.sessionId}</div>
+          </div>
+          <span class="bot-status ${b.status==='connected'?'on':'off'}">${b.status==='connected'?'🟢 Online':'🔴 Offline'}</span>
+        </div>
+        <div class="bot-actions">
+          <button class="btn btn-ghost btn-sm" onclick="restartBot('${b.sessionId}')">🔄 Restart</button>
+          <button class="btn btn-red btn-sm" onclick="deleteBot('${b.sessionId}')">🗑 Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { grid.innerHTML='<div class="empty">Error: '+e.message+'</div>'; }
+}
+
+async function restartBot(sid) {
+  if(!confirm('Restart this bot?')) return;
+  try {
+    const r = await api('/api/bot/restart',{method:'POST',body:JSON.stringify({sessionId:sid})});
+    const d = await r.json();
+    if(r.ok) { toast('🔄 Bot restarting...','info'); setTimeout(loadBots,3000); }
+    else toast('❌ '+(d.error||'Restart failed'),'err');
+  } catch(e) { toast(e.message,'err'); }
+}
+
+async function deleteBot(sid) {
+  if(!confirm('Delete this bot permanently?')) return;
+  try {
+    const r = await api('/api/bot/'+sid,{method:'DELETE'});
+    if(r.ok) { toast('🗑 Bot deleted','ok'); loadBots(); }
+    else { const d=await r.json(); toast('❌ '+(d.error||'Delete failed'),'err'); }
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ══ PAIRING ═════════════════════════════════
+
+let ws=null, currentMode='code';
+
+function setPairMode(m) {
+  currentMode=m;
+  document.getElementById('ptCode').classList.toggle('active',m==='code');
+  document.getElementById('ptQR').classList.toggle('active',m==='qr');
+  document.getElementById('modeCode').style.display=m==='code'?'block':'none';
+  document.getElementById('modeQR').style.display=m==='qr'?'block':'none';
+  closeWS();
+}
+
+function openWS(sessionId, onMsg) {
+  closeWS();
+  const proto = location.protocol==='https:'?'wss':'ws';
+  const url = `${proto}://${location.host}/ws?sessionId=${sessionId}`;
+  ws = new WebSocket(url);
+  ws.onmessage = e => { try { onMsg(JSON.parse(e.data)); } catch(_){} };
+  ws.onerror = () => toast('⚠️ WebSocket error','err');
+  ws.onclose = () => {};
+}
+
+function closeWS() {
+  if(ws) { try{ws.close();}catch(_){} ws=null; }
+}
+
+async function startPair() {
+  const num = document.getElementById('pairNum').value.trim().replace(/[^0-9]/g,'');
+  if(num.length<10) return toast('⚠️ Valid number darj karo (country code ke sath)','err');
+
+  const btn=document.getElementById('pairBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>...';
+  document.getElementById('pairWait').style.display='block';
+  document.getElementById('pairResult').style.display='none';
+  document.getElementById('pairErr').style.display='none';
+
+  try {
+    const r = await api('/api/bot/start-pair',{method:'POST',body:JSON.stringify({phoneNumber:num})});
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error||'Start pair failed');
+    const sid = d.sessionId;
+    openWS(sid, msg => {
+      if(msg.type==='pairCode') {
+        document.getElementById('pairWait').style.display='none';
+        document.getElementById('pairResult').style.display='block';
+        document.getElementById('pairCodeText').textContent = msg.code;
+        toast('✅ Pair code mila! Enter karo WhatsApp mein.','ok');
+        setTimeout(loadBots, 10000);
+      } else if(msg.type==='pairError') {
+        document.getElementById('pairWait').style.display='none';
+        document.getElementById('pairErr').style.display='block';
+        document.getElementById('pairErr').textContent='❌ '+(msg.error||'Pair failed');
+        closeWS();
+      } else if(msg.type==='connected') {
+        toast('🟢 Bot connected! +'+msg.number,'ok');
+        document.getElementById('pairResult').style.display='none';
+        loadBots(); closeWS();
+      }
+    });
+  } catch(e) {
+    document.getElementById('pairWait').style.display='none';
+    document.getElementById('pairErr').style.display='block';
+    document.getElementById('pairErr').textContent = '❌ '+e.message;
+    toast(e.message,'err');
+  } finally { btn.disabled=false; btn.innerHTML='Get Code'; }
+}
+
+async function startQR() {
+  const btn=document.getElementById('qrBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>Generating...';
+  document.getElementById('qrWait').style.display='block';
+  document.getElementById('qrDisplay').style.display='none';
+  document.getElementById('qrErr').style.display='none';
+
+  try {
+    const r = await api('/api/bot/start-qr',{method:'POST'});
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error||'QR start failed');
+    const sid = d.sessionId;
+    openWS(sid, msg => {
+      if(msg.type==='qr') {
+        document.getElementById('qrWait').style.display='none';
+        document.getElementById('qrDisplay').style.display='block';
+        document.getElementById('qrImg').src=msg.qr;
+        toast('📷 QR code ready — scan karo!','ok');
+      } else if(msg.type==='connected') {
+        toast('🟢 Bot connected! +'+msg.number,'ok');
+        document.getElementById('qrDisplay').style.display='none';
+        loadBots(); closeWS();
+      }
+    });
+  } catch(e) {
+    document.getElementById('qrWait').style.display='none';
+    document.getElementById('qrErr').style.display='block';
+    document.getElementById('qrErr').textContent='❌ '+e.message;
+    toast(e.message,'err');
+  } finally { btn.disabled=false; btn.innerHTML='📷 Generate QR Code'; }
+}
+
+function copyCode() {
+  const code = document.getElementById('pairCodeText').textContent;
+  if(!code) return;
+  navigator.clipboard.writeText(code).then(()=>toast('📋 Code copied!','ok')).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=code; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove(); toast('📋 Code copied!','ok');
+  });
+}
+
+// ══ ADMIN ════════════════════════════════════
+
+async function loadAdminUsers() {
+  const box = document.getElementById('adminUsers');
+  box.innerHTML='<div class="empty"><span class="spin"></span> Loading users...</div>';
+  try {
+    const r = await api('/api/admin/users');
+    if(!r.ok) { box.innerHTML='<div class="empty">Failed to load users</div>'; return; }
+    const d = await r.json();
+    const users = d.users||[];
+    if(!users.length) { box.innerHTML='<div class="empty">No users registered yet</div>'; return; }
+    box.innerHTML = users.map(u=>`
+      <div class="bot-card" style="margin-bottom:10px">
+        <div class="bot-top">
+          <div>
+            <div class="bot-num">${u.name||'Unknown'} <span style="font-size:.8rem;color:var(--muted)">&lt;${u.email}&gt;</span></div>
+            <div class="bot-id">📱 ${u.whatsapp||'-'} | Plan: ${u.plan||'free'}</div>
+          </div>
+          <span class="bot-status ${u.status==='approved'?'on':'off'}">${u.status}</span>
+        </div>
+        ${u.status==='pending'?`
+        <div class="bot-actions">
+          <button class="btn btn-green btn-sm" onclick="approveUser('${u.id}')">✅ Approve</button>
+          <button class="btn btn-red btn-sm" onclick="rejectUser('${u.id}')">❌ Reject</button>
+        </div>`:
+        `<div class="bot-actions">
+          <button class="btn btn-gold btn-sm" onclick="grantSub('${u.id}')">👑 Grant Sub</button>
+          <button class="btn btn-red btn-sm" onclick="delUser('${u.id}')">🗑 Delete</button>
+        </div>`}
+      </div>
+    `).join('');
+  } catch(e) { box.innerHTML='<div class="empty">Error: '+e.message+'</div>'; }
+}
+
+async function approveUser(uid) {
+  try {
+    const r=await api(`/api/admin/users/${uid}/approve`,{method:'POST'});
+    if(r.ok){toast('✅ User approved','ok');loadAdminUsers();}
+    else{const d=await r.json();toast('❌ '+(d.error||'Failed'),'err');}
+  } catch(e){toast(e.message,'err');}
+}
+async function rejectUser(uid) {
+  try {
+    const r=await api(`/api/admin/users/${uid}/reject`,{method:'POST'});
+    if(r.ok){toast('User rejected','info');loadAdminUsers();}
+    else{const d=await r.json();toast('❌ '+(d.error||'Failed'),'err');}
+  } catch(e){toast(e.message,'err');}
+}
+async function delUser(uid) {
+  if(!confirm('Delete this user permanently?')) return;
+  try {
+    const r=await api(`/api/admin/users/${uid}`,{method:'DELETE'});
+    if(r.ok){toast('🗑 User deleted','ok');loadAdminUsers();}
+    else{const d=await r.json();toast('❌ '+(d.error||'Failed'),'err');}
+  } catch(e){toast(e.message,'err');}
+}
+async function grantSub(uid) {
+  const plan=prompt('Plan type darj karo (monthly/yearly):','monthly');
+  if(!plan) return;
+  try {
+    const r=await api(`/api/admin/subscriptions/${uid}`,{method:'POST',body:JSON.stringify({plan,months:1})});
+    const d=await r.json();
+    if(r.ok){toast('✅ Subscription granted','ok');loadAdminUsers();}
+    else toast('❌ '+(d.error||'Failed'),'err');
+  } catch(e){toast(e.message,'err');}
+}
+
+// ══ AUTO-CHECK SESSION on load ═══════════════
+window.addEventListener('load', async () => {
+  try {
+    const r = await api('/api/auth/me');
+    if(r.ok) await initDashboard();
+  } catch(_){}
+});
+</script>
+</body>
+</html>
