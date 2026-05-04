@@ -487,13 +487,26 @@ app.get('/health', (req, res) => res.json({
   timestamp: new Date().toISOString(),
 }));
 
-app.get('/', (req, res) => res.json({
-  name: 'SAHIL 804 BOT API', version: config.bot.version,
-  status: 'running ✅', note: 'Frontend hosted separately on InfinityFree',
-}));
+// ─── Root → Serve Panel HTML ───────────────────────────────
+app.get('/', (req, res) => {
+  const indexFile = path.join(__dirname, 'public', 'index.html');
+  res.sendFile(indexFile, err => {
+    if (err) {
+      // If HTML not found, return JSON fallback
+      res.json({ name: 'SAHIL 804 BOT API', version: config.bot.version, status: 'running ✅', note: 'Place index.html in web/public/' });
+    }
+  });
+});
 
 // ─── 404 ──────────────────────────────────────────────────
-app.use((req, res) => res.status(404).json({ error: 'API route not found.' }));
+app.use((req, res) => {
+  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'API route not found.' });
+  // Non-API routes → try serving index.html (SPA fallback)
+  const indexFile = path.join(__dirname, 'public', 'index.html');
+  res.sendFile(indexFile, err => {
+    if (err) res.status(404).json({ error: 'Not found.' });
+  });
+});
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
