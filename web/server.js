@@ -1,9 +1,6 @@
 'use strict';
-// ============================================================
-//  SAHIL 804 BOT — SIMPLE PAIR CODE SERVER
-//  ✅ کوئی Login نہیں، کوئی Admin نہیں
-//  ✅ صرف: نمبر ڈالو → Pair Code لو → Bot Connect ہو جائے
-// ============================================================
+// SAHIL 804 BOT - SIMPLE PAIR CODE SERVER
+// No Login, No Admin - Just enter number and get pair code
 
 require('dotenv').config();
 
@@ -18,7 +15,6 @@ const NodeCache = require('node-cache');
 const { logger, generateSessionId } = require('../src/utils/helpers');
 const { startBot }                  = require('../src/bot/launcher');
 
-// Global cache (messageHandler ke liye zaroori)
 global.__fastSessionCache = new NodeCache({ stdTTL: 600, checkperiod: 60, maxKeys: 5000 });
 
 const app    = express();
@@ -27,7 +23,7 @@ const wss    = new WebSocketServer({ server, path: '/ws' });
 
 app.set('trust proxy', 1);
 
-// ─── CORS ─────────────────────────────────────────────────
+// CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -39,7 +35,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ─── WebSocket ────────────────────────────────────────────
+// WebSocket
 const wsClients = new Map();
 
 wss.on('connection', (ws, req) => {
@@ -57,7 +53,7 @@ function wsSend(sessionId, data) {
   }
 }
 
-// ─── API: Pair Code ───────────────────────────────────────
+// API: Pair Code - No Auth Required
 app.post('/api/pair', async (req, res) => {
   try {
     const { phoneNumber } = req.body;
@@ -95,12 +91,12 @@ app.post('/api/pair', async (req, res) => {
   }
 });
 
-// ─── Health Check ─────────────────────────────────────────
+// Health Check
 app.get('/api/status', (_req, res) => {
-  res.json({ status: 'ok', message: 'Sahil 804 Bot Running ✅' });
+  res.json({ status: 'ok', message: 'Sahil 804 Bot Running' });
 });
 
-// ─── Main HTML ────────────────────────────────────────────
+// Main HTML Page
 app.get('*', (_req, res) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(`<!DOCTYPE html>
@@ -108,7 +104,7 @@ app.get('*', (_req, res) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🤖 Sahil 804 Bot — Pair Code</title>
+<title>Sahil 804 Bot - Pair Code</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -191,34 +187,34 @@ app.get('*', (_req, res) => {
 <body>
 <div class="card">
   <div class="logo">
-    <span class="icon">🤖</span>
+    <span class="icon">&#129302;</span>
     <h1>Sahil 804 Bot</h1>
-    <p>WhatsApp Bot — Pair Code System</p>
+    <p>WhatsApp Bot - Pair Code System</p>
   </div>
 
-  <label class="label">📱 اپنا WhatsApp نمبر درج کریں (Country Code کے ساتھ)</label>
+  <label class="label">&#128241; WhatsApp Number (Country Code ke sath)</label>
   <input class="inp" id="phoneInput" type="tel"
     placeholder="923001234567" dir="ltr"
     oninput="clearErr()" onkeydown="if(event.key==='Enter')startPair()">
   <button class="btn" id="pairBtn" onclick="startPair()">
-    🔑 Pair Code حاصل کریں
+    &#128273; Pair Code Hasil Karen
   </button>
 
   <div class="status-box" id="statusBox">
-    <span class="status-icon" id="statusIcon">⏳</span>
+    <span class="status-icon" id="statusIcon">&#9203;</span>
     <div id="statusMsg"></div>
     <button class="try-again" id="tryAgainBtn" style="display:none" onclick="resetUI()">
-      🔄 دوبارہ کوشش کریں
+      &#128260; Dobara Koshish Karen
     </button>
   </div>
 
   <hr class="divider">
   <div class="steps">
-    <div><span>1️⃣</span> اوپر اپنا نمبر ڈالیں</div>
-    <div><span>2️⃣</span> Pair Code حاصل کریں</div>
-    <div><span>3️⃣</span> WhatsApp کھولیں</div>
-    <div><span>4️⃣</span> <b>Linked Devices → Link a Device → Link with phone number</b></div>
-    <div><span>5️⃣</span> Pair Code درج کریں — Bot Connect! ✅</div>
+    <div><span>1.</span> Apna number daalen</div>
+    <div><span>2.</span> Pair Code hasil karen</div>
+    <div><span>3.</span> WhatsApp kholain</div>
+    <div><span>4.</span> <b>Linked Devices &rarr; Link a Device &rarr; Link with phone number</b></div>
+    <div><span>5.</span> Pair Code enter karen - Bot Connect! &#9989;</div>
   </div>
 </div>
 
@@ -247,22 +243,22 @@ function resetUI(soft) {
   }
   document.getElementById('statusBox').className = 'status-box';
   document.getElementById('pairBtn').disabled = false;
-  document.getElementById('pairBtn').innerHTML = '🔑 Pair Code حاصل کریں';
+  document.getElementById('pairBtn').innerHTML = '&#128273; Pair Code Hasil Karen';
   document.getElementById('tryAgainBtn').style.display = 'none';
 }
 
 async function startPair() {
   const num = document.getElementById('phoneInput').value.trim().replace(/[^0-9]/g, '');
   if (num.length < 10) {
-    show('error', '⚠️', '<div style="color:#ef4444">Country Code کے ساتھ نمبر درج کریں<br><small>مثال: 923001234567</small></div>');
+    show('error', '&#9888;', '<div style="color:#ef4444">Country Code ke sath number enter karen<br><small>Example: 923001234567</small></div>');
     document.getElementById('tryAgainBtn').style.display = 'block';
     return;
   }
 
   const btn = document.getElementById('pairBtn');
   btn.disabled = true;
-  btn.innerHTML = 'کوشش جاری ہے... <span class="spin"></span>';
-  show('waiting', '📡', '<div style="color:#3b82f6">Server سے رابطہ ہو رہا ہے...</div>');
+  btn.innerHTML = 'Koshish jari hai... <span class="spin"></span>';
+  show('waiting', '&#128225;', '<div style="color:#3b82f6">Server se rabta ho raha hai...</div>');
 
   try {
     const resp = await fetch(BASE + '/api/pair', {
@@ -273,21 +269,21 @@ async function startPair() {
     const data = await resp.json();
 
     if (!resp.ok || !data.success) {
-      show('error', '❌', '<div style="color:#ef4444">' + (data.error || 'Server Error') + '</div>');
+      show('error', '&#10060;', '<div style="color:#ef4444">' + (data.error || 'Server Error') + '</div>');
       document.getElementById('tryAgainBtn').style.display = 'block';
       btn.disabled = false;
-      btn.innerHTML = '🔑 Pair Code حاصل کریں';
+      btn.innerHTML = '&#128273; Pair Code Hasil Karen';
       return;
     }
 
-    show('waiting', '⏳', '<div style="color:#3b82f6">Pair Code تیار ہو رہا ہے...<br><small>WhatsApp سے کنیکٹ ہو رہا ہے</small></div>');
+    show('waiting', '&#9203;', '<div style="color:#3b82f6">Pair Code tayar ho raha hai...<br><small>WhatsApp se connect ho raha hai</small></div>');
     connectWS(data.sessionId);
 
   } catch (err) {
-    show('error', '❌', '<div style="color:#ef4444">Server سے رابطہ نہیں ہو سکا</div>');
+    show('error', '&#10060;', '<div style="color:#ef4444">Server se rabta nahi ho saka</div>');
     document.getElementById('tryAgainBtn').style.display = 'block';
     btn.disabled = false;
-    btn.innerHTML = '🔑 Pair Code حاصل کریں';
+    btn.innerHTML = '&#128273; Pair Code Hasil Karen';
   }
 }
 
@@ -300,52 +296,52 @@ function connectWS(sessionId) {
     try { msg = JSON.parse(event.data); } catch(_) { return; }
 
     if (msg.type === 'pairCode') {
-      show('success', '🔑',
-        '<div style="color:#22c55e;font-size:.85rem;margin-bottom:4px">Pair Code تیار ہے!</div>' +
+      show('success', '&#128273;',
+        '<div style="color:#22c55e;font-size:.85rem;margin-bottom:4px">Pair Code tayar hai!</div>' +
         '<div class="pair-code">' + (msg.code || '') + '</div>' +
-        '<div class="hint">WhatsApp → <b>Linked Devices</b> → <b>Link a Device</b> → <b>Link with phone number</b> → یہ کوڈ درج کریں</div>'
+        '<div class="hint">WhatsApp &rarr; <b>Linked Devices</b> &rarr; <b>Link a Device</b> &rarr; <b>Link with phone number</b> &rarr; yeh code enter karen</div>'
       );
       document.getElementById('tryAgainBtn').style.display = 'block';
-      document.getElementById('tryAgainBtn').textContent = '🔄 نیا Pair Code لیں';
+      document.getElementById('tryAgainBtn').textContent = 'Naya Pair Code Len';
     }
     else if (msg.type === 'qr') {
-      show('waiting', '📷',
-        '<div style="color:#f0a500;margin-bottom:8px">QR Code اسکین کریں:</div>' +
+      show('waiting', '&#128247;',
+        '<div style="color:#f0a500;margin-bottom:8px">QR Code scan karen:</div>' +
         '<img class="qr-img" src="' + msg.qr + '" alt="QR">' +
-        '<div class="hint">WhatsApp → <b>Linked Devices</b> → <b>Link a Device</b> → QR اسکین کریں</div>'
+        '<div class="hint">WhatsApp &rarr; <b>Linked Devices</b> &rarr; <b>Link a Device</b> &rarr; QR scan karen</div>'
       );
     }
     else if (msg.type === 'connected') {
-      show('success', '✅',
-        '<div style="color:#22c55e;font-weight:700;font-size:1rem">Bot کامیابی سے Connect ہو گیا! 🎉</div>' +
-        '<div class="connected-num">📱 +' + (msg.number || '') + '</div>' +
-        '<div class="hint">آپ کا Sahil 804 Bot اب چل رہا ہے۔</div>'
+      show('success', '&#9989;',
+        '<div style="color:#22c55e;font-weight:700;font-size:1rem">Bot kamyabi se Connect ho gaya!</div>' +
+        '<div class="connected-num">&#128241; +' + (msg.number || '') + '</div>' +
+        '<div class="hint">Sahil 804 Bot ab chal raha hai.</div>'
       );
       document.getElementById('tryAgainBtn').style.display = 'block';
-      document.getElementById('tryAgainBtn').textContent = '➕ نیا Bot Connect کریں';
+      document.getElementById('tryAgainBtn').textContent = 'Naya Bot Connect Karen';
     }
     else if (msg.type === 'pairError') {
-      show('error', '❌', '<div style="color:#ef4444">Pair Error: ' + (msg.error || 'Unknown') + '</div>');
+      show('error', '&#10060;', '<div style="color:#ef4444">Pair Error: ' + (msg.error || 'Unknown') + '</div>');
       document.getElementById('tryAgainBtn').style.display = 'block';
       const btn = document.getElementById('pairBtn');
       btn.disabled = false;
-      btn.innerHTML = '🔑 Pair Code حاصل کریں';
+      btn.innerHTML = '&#128273; Pair Code Hasil Karen';
     }
     else if (msg.type === 'disconnected') {
-      show('error', '📴', '<div style="color:#ef4444">Bot disconnect ہو گیا</div>');
+      show('error', '&#128244;', '<div style="color:#ef4444">Bot disconnect ho gaya</div>');
       document.getElementById('tryAgainBtn').style.display = 'block';
       const btn = document.getElementById('pairBtn');
       btn.disabled = false;
-      btn.innerHTML = '🔑 Pair Code حاصل کریں';
+      btn.innerHTML = '&#128273; Pair Code Hasil Karen';
     }
   };
 
   ws.onerror = () => {
-    show('error', '❌', '<div style="color:#ef4444">Connection Error — دوبارہ کوشش کریں</div>');
+    show('error', '&#10060;', '<div style="color:#ef4444">Connection Error - Dobara koshish karen</div>');
     document.getElementById('tryAgainBtn').style.display = 'block';
     const btn = document.getElementById('pairBtn');
     btn.disabled = false;
-    btn.innerHTML = '🔑 Pair Code حاصل کریں';
+    btn.innerHTML = '&#128273; Pair Code Hasil Karen';
   };
 }
 </script>
@@ -353,10 +349,10 @@ function connectWS(sessionId) {
 </html>`);
 });
 
-// ─── Start Server ──────────────────────────────────────────
+// Start Server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  logger.info('🚀 Sahil 804 Bot Server running on port ' + PORT);
-  logger.info('🔑 Pair Code System Active — No Login Required');
+  logger.info('Sahil 804 Bot Server running on port ' + PORT);
+  logger.info('Pair Code System Active - No Login Required');
 });
         
